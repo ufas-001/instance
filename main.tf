@@ -1,7 +1,16 @@
 provider "aws" {
   region = "us-east-1"
 }
-
+# Backend Configuration
+terraform {
+  backend "s3" {
+    bucket         = "myinstance-tf-state-bucket"
+    key            = "instance-server/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-state-lock"
+    encrypt        = true
+  }
+}
 data "aws_vpc" "main" {
   default = true
 }
@@ -25,7 +34,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.allow_tls_2.id]
+  vpc_security_group_ids = [aws_security_group.allow_tls.id]
   key_name = "Ec2key"
 
   tags = {
@@ -33,7 +42,7 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_security_group" "allow_tls_2" {
+resource "aws_security_group" "allow_tls" {
   name        = "allow_tls"
   description = "Allow TLS inbound traffic and all outbound traffic"
   vpc_id      = data.aws_vpc.main.id
