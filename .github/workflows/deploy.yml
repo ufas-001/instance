@@ -32,12 +32,14 @@ jobs:
       run: |
         mkdir -p ~/.ssh
         eval $(ssh-agent -s)
-        echo "${{ secrets.SSH_KEY }}" | tr -d '\r' | ssh-add -
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/bastion_key.pem
+        chmod 600 ~/.ssh/bastion_key.pem
+        ssh-add ~/.ssh/bastion_key.pem
+        ssh-add -l
 
     - name: Transfer Script and Run on Private Instance via Bastion Host
       run: |
         echo "Bastion IP: ${{ env.BASTION_IP }}"
         echo "Private Instance IP: ${{ env.PRIVATE_IP }}"
-        ssh -vvv -o StrictHostKeyChecking=no ubuntu@${{ env.BASTION_IP }} \
+        scp -o StrictHostKeyChecking=no ~/.ssh/bastion_key.pem run_script.sh ubuntu@${{ env.BASTION_IP }}:/home/ubuntu/run_script.sh
+        ssh -vvv -o StrictHostKeyChecking=no -i ~/.ssh/bastion_key.pem ubuntu@${{ env.BASTION_IP }} 
