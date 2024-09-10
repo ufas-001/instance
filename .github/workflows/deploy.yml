@@ -1,0 +1,45 @@
+name: Deploy and Run Script
+
+on:
+  push:
+    branches: [ mirth-branch ]
+
+jobs:
+  deploy_and_run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with: 
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+    
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+    - name: Get Terraform Outputs
+      id: terraform_output
+      run: |
+        echo "BASTION_IP=$(terraform output instance_ip)" >> $GITHUB_ENV
+
+    - name: Setup SSH Keys
+      run: |
+        mkdir -p ~/.ssh
+        eval $(ssh-agent -s)
+        echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/bastion_key.pem
+        chmod 600 ~/.sssh/bastion_key.pem
+        ssh-add ~/.ssh/bastion_key.pem
+        ssh-add -l
+
+    - name: Transfer Script and Run on Private Instance via Bastion Host
+      run: |
+        # Debug IP addresses
+        echo "Bastion IP: ${{ env.BASTION_IP }}"
+        echo "Private Instance IP: ${{ env.PRIVATE_IP }}"
+        # ssh -vvv -o StrictHostKeyChecking=no ubuntu@${{ env.BASTION_IP }}
