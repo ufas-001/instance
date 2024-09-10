@@ -33,7 +33,7 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_security_group" "allow_tls" {
+resource "aws_security_group" "allow_tls_2" {
   name        = "allow_tls"
   description = "Allow TLS inbound traffic and all outbound traffic"
   vpc_id      = data.aws_vpc.main.id
