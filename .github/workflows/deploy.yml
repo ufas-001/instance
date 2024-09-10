@@ -2,7 +2,7 @@ name: Deploy and Run Script
 
 on:
   push:
-    branches: [ mirth-branch ]
+    branches: [ main ]
 
 jobs:
   deploy_and_run:
