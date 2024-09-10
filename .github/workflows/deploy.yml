@@ -38,6 +38,7 @@ jobs:
         ssh-add -l
 
     - name: Transfer Script and Run on Private Instance via Bastion Host
+      working-directory: ./Script
       run: |
         echo "Bastion IP: ${{ env.BASTION_IP }}"
         echo "Private Instance IP: ${{ env.PRIVATE_IP }}"
