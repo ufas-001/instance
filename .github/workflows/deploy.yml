@@ -44,4 +44,5 @@ jobs:
         echo "Private Instance IP: ${{ env.PRIVATE_IP }}"
         scp -o StrictHostKeyChecking=no -i ~/.ssh/bastion_key.pem run_script.sh ubuntu@${{ env.BASTION_IP }}:/home/ubuntu/run_script.sh
         ssh -vvv -o StrictHostKeyChecking=no -i ~/.ssh/bastion_key.pem ubuntu@${{ env.BASTION_IP }}
+        chmod +x run_script.sh
         ./run_script.sh
